@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập - Rạp Chiếu Phim</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding-top: 50px; 
+            background-color: #111; 
+            color: #fff;
+        }
+        .form-container { 
+            border: 1px solid #444; 
+            padding: 30px; 
+            border-radius: 8px; 
+            width: 320px; 
+            background-color: #222;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; color: #ffcc00; }
+        input { 
+            width: 93%; 
+            margin-bottom: 15px; 
+            padding: 10px; 
+            border-radius: 4px; 
+            border: 1px solid #444;
+            background: #333;
+            color: #fff;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #ffcc00; 
+            color: #000; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+        }
+        button:hover { background: #e6b800; }
+        #msg { color: #ff4444; text-align: center; margin-top: 10px; font-size: 14px; }
+        .back-link { display: block; text-align: center; margin-top: 15px; color: #aaa; text-decoration: none; font-size: 14px; }
+        .back-link:hover { color: #ffcc00; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Đăng nhập</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mật khẩu" required>
+        <button onclick="handleLogin()">Đăng nhập</button>
+        <p id="msg"></p>
+        <a href="/" class="back-link">← Quay lại trang chủ</a>
+    </div>
+
+    <script>
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msgElement = document.getElementById('msg');
+            
+            // Xóa thông báo cũ
+            msgElement.innerText = "";
+
+            try {
+                // LƯU Ý: Đổi đường dẫn thành /api/auth/login để khớp với app.js của bạn
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // 1. Lưu Token vào localStorage
+                    localStorage.setItem('token', data.token);
+                    
+                    // 2. Lưu Email người dùng để hiển thị ở trang Home
+                    localStorage.setItem('userEmail', email);
+                    
+                    alert("Đăng nhập thành công!");
+                    
+                    // 3. Chuyển hướng về trang chủ
+                    window.location.href = "/"; 
+                } else {
+                    // Hiển thị lỗi từ server (ví dụ: "Sai mật khẩu")
+                    msgElement.innerText = data.error || "Đăng nhập thất bại";
+                }
+            } catch (err) {
+                console.error("Lỗi kết nối:", err);
+                msgElement.innerText = "Không thể kết nối tới máy chủ.";
+            }
+        }
+    </script>
+</body>
+</html>
